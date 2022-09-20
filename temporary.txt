@@ -1,0 +1,68 @@
+from django.contrib.auth.models import User
+User.objects.create_user('Александров Павел', password = 'admin1')
+User.objects.create_user('Иванов Иван', password = 'admin2')
+
+from news.models import Author
+user_1 = User.objects.get(pk=1)
+author_1 = Author.objects.create(author_user=user_1)
+user_2 = User.objects.get(pk=2)
+author_2 = Author.objects.create(author_user=user_2)
+
+from news.models import Category
+category1 = Category.objects.create(name_category = 'Politics')
+category2 = Category.objects.create(name_category = 'Sport')
+category3 = Category.objects.create(name_category = 'Culture')
+category4 = Category.objects.create(name_category = 'InWorld')
+
+from news.models import Post
+post_1 = Post.objects.create(post_author = author_1, news_post = Post.article, header_post = 'Перерыв', text_post = 'Более двух месяцев я ничего не делал в программировании')
+post_2 = Post.objects.create(post_author = author_2, news_post = Post.article, header_post = 'Возобновление', text_post = 'Я начал разбираться заново')
+news_1 = Post.objects.create(post_author = author_1, news_post = Post.news, header_post = 'О ЧУДО!!!', text_post = 'Я разобрался с задачей, всё еще впереди ')
+
+from news.models import PostCategory
+c1 = Category.objects.all()[0]
+c2 = Category.objects.all()[1]
+c3 = Category.objects.all()[2]
+c4 = Category.objects.all()[3]
+post_1.post_category.add(c1, c3)
+post_2.post_category.add(c1, c3)
+news_1.post_category.add(c2, c3, c4)
+
+from news.models import Comment
+comment_1 = Comment.objects.create(comment_post=post_1, comment_user=user_2, text_comment = 'Пора начинать действовать.')
+comment_2 = Comment.objects.create(comment_post=post_2, comment_user=user_1, text_comment = 'Давай бегом все вспоминай!')
+comment_3 = Comment.objects.create(comment_post=news_1, comment_user=user_2, text_comment = 'Поздравляю!')
+comment_4 = Comment.objects.create(comment_post=news_1, comment_user=user_1, text_comment = 'Впереди много чего интересного')
+
+post_1.like()
+post_2.like()
+news_1.like()
+news_1.like()
+news_1.dislike()
+news_1.like()
+news_1.like()
+news_1.like()
+comment_1.like()
+comment_1.like()
+comment_1.dislike()
+comment_2.like()
+comment_2.like()
+comment_2.like()
+comment_3.like()
+comment_3.like()
+comment_3.like()
+comment_3.like()
+comment_4.like()
+comment_4.like()
+
+from django.db.models import Sum
+a_1 = author_1.update_rating()
+a_2 = author_2.update_rating()
+
+Author.objects.all().order_by('-rating_author').values('author_user__username', 'rating_author').first()
+
+Post.objects.all().order_by('-rating_post').values('post_data', 'post_author__author_user__username', 'rating_post', 'header_post', 'id').first()
+best_post = Post.objects.get(pk=3).preview()
+best_post
+
+Post.objects.filter(pk=3).values('comment__text_comment')
